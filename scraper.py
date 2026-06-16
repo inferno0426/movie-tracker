@@ -15,8 +15,9 @@ from playwright.async_api import async_playwright
 CSV_FILE = "data.csv"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
-FILMARKS_URL = "https://filmarks.com/movies/123333"
-EIGA_URL = "https://eiga.com/movie/104699/users/"
+MOVIE_NAME = "グレイ・ミッション"
+FILMARKS_URL = "https://filmarks.com/movies/128389"
+EIGA_URL = "https://eiga.com/movie/106214/users/"
 
 
 async def get_filmarks_mark_count():
@@ -74,12 +75,12 @@ def send_email(filmarks_count, eiga_count):
     msg = MIMEMultipart()
     msg["From"] = gmail_user
     msg["To"] = email_to
-    msg["Subject"] = f"[映画データ] {TODAY} の記録"
+    msg["Subject"] = f"[{MOVIE_NAME}] {TODAY} の記録"
 
     fm_str = f"{filmarks_count:,}" if filmarks_count is not None else "取得失敗"
     eiga_str = f"{eiga_count:,}" if eiga_count is not None else "取得失敗"
 
-    body = f"""本日（{TODAY}）の映画データをお届けします。
+    body = f"""本日（{TODAY}）の{MOVIE_NAME}データをお届けします。
 
 ■ Filmarks クリップ数: {fm_str} 人（見たい）
 ■ eiga.com Check-in数: {eiga_str} 人（見た）
