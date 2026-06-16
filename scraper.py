@@ -94,7 +94,7 @@ def send_email(filmarks_count, eiga_count):
         attachment.set_payload(f.read())
         encoders.encode_base64(attachment)
         attachment.add_header(
-            "Content-Disposition", "attachment; filename=movie_data.csv"
+            "Content-Disposition", f"attachment; filename={MOVIE_NAME}.csv"
         )
         msg.attach(attachment)
 
