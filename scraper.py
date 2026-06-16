@@ -26,7 +26,8 @@ async def get_filmarks_mark_count():
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         )
         page = await context.new_page()
-        await page.goto(FILMARKS_URL, wait_until="networkidle", timeout=30000)
+        await page.goto(FILMARKS_URL, wait_until="domcontentloaded", timeout=60000)
+        await page.wait_for_timeout(5000)
 
         count = None
 
