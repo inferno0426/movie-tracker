@@ -31,38 +31,16 @@ async def get_filmarks_mark_count():
 
         count = None
 
-        # HTMLソースから1680周辺のコンテキストを出力してセレクタを特定する
-        html = await page.content()
-
-        for keyword in ["1680", "1,680", "マーク"]:
-            idx = html.find(keyword)
-            if idx >= 0:
-                snippet = html[max(0, idx - 300):idx + 300]
-                print(f"[Filmarks] '{keyword}' 周辺HTML:\n{snippet}\n---")
-
-        # 暫定：セレクタ候補を順に試す
-        selectors = [
-            ".p-movie-detail__marks",
-            ".p-movie-detail__mark",
-            "[class*='detail__mark']",
-            "[class*='detail-mark']",
-            "[class*='marks__count']",
-            "[class*='mark__count']",
-        ]
-        for selector in selectors:
-            try:
-                el = page.locator(selector).first
-                text = await el.text_content(timeout=3000)
-                print(f"[Filmarks] selector '{selector}' hit: {text}")
-                nums = re.findall(r"[\d,]+", text)
-                if nums:
-                    count = int(nums[0].replace(",", ""))
-                    break
-            except Exception:
-                continue
-
-        if count is None:
-            print("[Filmarks] マーク数が見つかりませんでした")
+        # クリップ数（見たい人数）を取得
+        try:
+            el = page.locator(".c-content__action--clips .c-content__count").first
+            text = await el.text_content(timeout=5000)
+            nums = re.findall(r"[\d,]+", text)
+            if nums:
+                count = int(nums[0].replace(",", ""))
+                print(f"[Filmarks] クリップ数取得成功: {count}")
+        except Exception as e:
+            print(f"[Filmarks] クリップ数取得失敗: {e}")
 
         await browser.close()
         return count
@@ -83,7 +61,7 @@ def save_to_csv(filmarks_count, eiga_count):
     with open(CSV_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["date", "filmarks_mark_count", "eiga_checkin_count"])
+            writer.writerow(["date", "filmarks_clip_count", "eiga_checkin_count"])
         writer.writerow([TODAY, filmarks_count, eiga_count])
     print(f"CSV保存完了: {TODAY}, Filmarks={filmarks_count}, eiga={eiga_count}")
 
@@ -103,8 +81,8 @@ def send_email(filmarks_count, eiga_count):
 
     body = f"""本日（{TODAY}）の映画データをお届けします。
 
-■ Filmarks マーク数  : {fm_str} マーク
-■ eiga.com Check-in数: {eiga_str} 人
+■ Filmarks クリップ数: {fm_str} 人（見たい）
+■ eiga.com Check-in数: {eiga_str} 人（見た）
 
 累積データのCSVを添付しています。
 """
