@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * *'  # UTC 00:00 = 日本時間 09:00
   workflow_dispatch:      # GitHubの画面から手動実行も可能
 
+permissions:
+  contents: write
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
