@@ -31,23 +31,23 @@ async def get_filmarks_mark_count():
 
         count = None
 
-        # ページタイトルとURLをログ出力
-        print(f"[Filmarks] title: {await page.title()}")
-        print(f"[Filmarks] url: {page.url}")
+        # HTMLソースから1680周辺のコンテキストを出力してセレクタを特定する
+        html = await page.content()
 
-        # ページ全文テキストをログ出力（デバッグ用）
-        body_text = await page.locator("body").inner_text()
-        print(f"[Filmarks] body text (先頭2000文字):\n{body_text[:2000]}")
+        for keyword in ["1680", "1,680", "マーク"]:
+            idx = html.find(keyword)
+            if idx >= 0:
+                snippet = html[max(0, idx - 300):idx + 300]
+                print(f"[Filmarks] '{keyword}' 周辺HTML:\n{snippet}\n---")
 
-        # セレクタ候補を順に試す
+        # 暫定：セレクタ候補を順に試す
         selectors = [
-            ".p-movie-detail__mark-count",
-            ".c-movie-mark-count",
-            "[class*='mark-count']",
-            "[class*='mark_count']",
-            "[class*='Mark']",
-            ".p-mark",
-            ".js-mark-count",
+            ".p-movie-detail__marks",
+            ".p-movie-detail__mark",
+            "[class*='detail__mark']",
+            "[class*='detail-mark']",
+            "[class*='marks__count']",
+            "[class*='mark__count']",
         ]
         for selector in selectors:
             try:
@@ -61,18 +61,8 @@ async def get_filmarks_mark_count():
             except Exception:
                 continue
 
-        # セレクタで取れなかった場合はページ全体から正規表現で探す
         if count is None:
-            try:
-                html = await page.content()
-                match = re.search(r"([\d,]+)\s*マーク", html)
-                if match:
-                    count = int(match.group(1).replace(",", ""))
-                    print(f"[Filmarks] regex hit: {count}")
-                else:
-                    print("[Filmarks] マーク数が見つかりませんでした")
-            except Exception as e:
-                print(f"[Filmarks] regex error: {e}")
+            print("[Filmarks] マーク数が見つかりませんでした")
 
         await browser.close()
         return count
