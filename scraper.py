@@ -27,9 +27,17 @@ async def get_filmarks_mark_count():
         )
         page = await context.new_page()
         await page.goto(FILMARKS_URL, wait_until="domcontentloaded", timeout=60000)
-        await page.wait_for_timeout(5000)
+        await page.wait_for_timeout(8000)
 
         count = None
+
+        # ページタイトルとURLをログ出力
+        print(f"[Filmarks] title: {await page.title()}")
+        print(f"[Filmarks] url: {page.url}")
+
+        # ページ全文テキストをログ出力（デバッグ用）
+        body_text = await page.locator("body").inner_text()
+        print(f"[Filmarks] body text (先頭2000文字):\n{body_text[:2000]}")
 
         # セレクタ候補を順に試す
         selectors = [
@@ -37,11 +45,15 @@ async def get_filmarks_mark_count():
             ".c-movie-mark-count",
             "[class*='mark-count']",
             "[class*='mark_count']",
+            "[class*='Mark']",
+            ".p-mark",
+            ".js-mark-count",
         ]
         for selector in selectors:
             try:
                 el = page.locator(selector).first
                 text = await el.text_content(timeout=3000)
+                print(f"[Filmarks] selector '{selector}' hit: {text}")
                 nums = re.findall(r"[\d,]+", text)
                 if nums:
                     count = int(nums[0].replace(",", ""))
@@ -56,8 +68,11 @@ async def get_filmarks_mark_count():
                 match = re.search(r"([\d,]+)\s*マーク", html)
                 if match:
                     count = int(match.group(1).replace(",", ""))
-            except Exception:
-                pass
+                    print(f"[Filmarks] regex hit: {count}")
+                else:
+                    print("[Filmarks] マーク数が見つかりませんでした")
+            except Exception as e:
+                print(f"[Filmarks] regex error: {e}")
 
         await browser.close()
         return count
