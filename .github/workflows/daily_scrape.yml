@@ -3,7 +3,12 @@ name: Daily Movie Data Scraper
 on:
   schedule:
     - cron: '0 0 * * *'  # UTC 00:00 = 日本時間 09:00
-  workflow_dispatch:      # GitHubの画面から手動実行も可能
+  workflow_dispatch:
+    inputs:
+      skip_delay:
+        description: 'ランダム待機をスキップ（テスト用）'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -22,6 +27,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Random delay (9:00~15:00 JST)
+        if: ${{ github.event.inputs.skip_delay != 'true' }}
+        run: |
+          DELAY=$((RANDOM % 21600))
+          echo "Sleeping for ${DELAY} seconds (~$(( DELAY / 60 )) minutes)..."
+          sleep $DELAY
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
