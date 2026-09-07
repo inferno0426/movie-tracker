@@ -1,8 +1,14 @@
 name: Daily Movie Data Scraper
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # UTC 00:00 = 日本時間 09:00
+  # ==========================================================
+  # 現在「グレイ・ミッション」のデータ取得は停止中のため、
+  # 自動スケジュール実行（schedule）を止めています。
+  # 新しい映画でデータ取得を再開する場合は、scraper.py 内の
+  # MOVIE_NAME / FILMARKS_URL / EIGA_URL を書き換えたうえで、
+  # 下記 schedule のコメントアウトを外してください。
+  # schedule:
+  #   - cron: '0 0 * * *'  # UTC 00:00 = 日本時間 09:00
   workflow_dispatch:
     inputs:
       skip_delay:
