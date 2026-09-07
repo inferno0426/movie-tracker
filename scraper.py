@@ -15,6 +15,18 @@ from playwright.async_api import async_playwright
 CSV_FILE = "data.csv"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
+# ==========================================================
+# 【次の映画でのデータ取得を再開する場合】
+# 下記3行（MOVIE_NAME / FILMARKS_URL / EIGA_URL）を新しい映画の
+# 情報に書き換えてください。CSV_FILE はこのままでOK（新しい
+# data.csv が自動的に作成されます）。
+# 書き換えたら、.github/workflows/daily_scrape.yml 内で
+# コメントアウトしている schedule（cron）のコメントを外せば、
+# 毎日の自動取得が再開します。
+#
+# 現在は「グレイ・ミッション」のデータ取得を停止中です。
+# 過去データは grey-mission-data.csv に保存されています。
+# ==========================================================
 MOVIE_NAME = "グレイ・ミッション"
 FILMARKS_URL = "https://filmarks.com/movies/128389"
 EIGA_URL = "https://eiga.com/movie/106214/users/"
